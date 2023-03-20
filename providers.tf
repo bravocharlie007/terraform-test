@@ -1,4 +1,10 @@
 terraform {
+#  cloud {
+#    organization = "EC2-DEPLOYER-DEV"
+#    workspaces {
+#      name = "terraform-test"
+#    }
+#  }
   required_version = "1.4.0"
   required_providers {
     aws = {
@@ -11,8 +17,8 @@ terraform {
 provider "aws" {
 #  profile = var.sso_profile
   region = var.region
-  access_key = var.aws_access_key_id
-  secret_key = var.aws_secret_access_key
+#  access_key = var.aws_access_key_id
+#  secret_key = var.aws_secret_access_key
 
 #  endpoints {
 #    sts = "https://sts.${var.aws_account_id}.amazonaws.com"
