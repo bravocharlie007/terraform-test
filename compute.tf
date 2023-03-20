@@ -57,8 +57,11 @@ resource "aws_alb" "ec2_deployer_alb" {
 #  subnets            = [aws_subnet.public_subnet.id, aws_subnet.private_subnet.id]
   subnets            = [aws_subnet.public_subnet.id, aws_subnet.public_subnet_2.id]
   #  subnets            = [aws_subnet.public_subnet.id]
-
   security_groups = [aws_security_group.ec2_deployer_alb_sg.id, aws_security_group.sg.id]
+  access_logs {
+    bucket = "vpc-flow-logs123"
+    enabled = true
+  }
   depends_on = [aws_subnet.public_subnet]
   tags = local.alb_tags
 }
@@ -139,7 +142,8 @@ resource "aws_alb_listener_rule" "alb_listener_rule"{
 #  }
   condition {
     path_pattern {
-      values = ["/var/www/html/index.html"]
+#      values = ["/var/www/html/index.html"]
+      values = ["/"]
     }
   }
 }
