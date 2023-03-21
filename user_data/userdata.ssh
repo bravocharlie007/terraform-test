@@ -4,6 +4,8 @@ yum update -y
 yum install httpd -y
 systemctl start httpd
 systemctl enable httpd
-echo 'Welcome to Instance' >> /var/www/html/index.html
+EC2_AVAIL_ZONE=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
+echo "<h1>Welcome to Instance from $(hostname -f) in AZ $EC2_AVAIL_ZONE </h1>" > /var/www/html/index.html
+echo "Welcome to Instance $(hostname -f) in AZ $EC2_AVAIL_ZONE" > /var/www/html/index.html
 sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
 systemctl restart sshd

@@ -48,14 +48,14 @@ resource "aws_internet_gateway" "igw" {
 }
 
 
-resource "aws_route53_zone" dev_zone {
-  name = local.zone_name
-  tags_all = local.zone_tags
-}
+#resource "aws_route53_zone" dev_zone {
+#  name = local.zone_name
+#  tags_all = local.zone_tags
+#}
 
 resource "aws_route53_record" "alias_alb_record" {
-  zone_id = aws_route53_zone.dev_zone.zone_id
-  name = local.zone_name
+  zone_id = data.terraform_remote_state.zone.outputs.zone_id
+  name = "dev.${var.domain}"
   type = "A"
 
   alias {
@@ -104,6 +104,9 @@ resource "aws_route53_record" "alias_alb_record_in_main_zone" {
 
 resource "aws_route_table" ec2_deployer_vpc_route_table {
   vpc_id = aws_vpc.ec2_deployer_vpc.id
+  tags = {
+    "Name" = "PublicRouteTable-${var.environment}"
+  }
 }
 
 resource "aws_route" "route_to_igw" {

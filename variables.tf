@@ -1,3 +1,9 @@
+variable "org_name" {}
+
+variable "zone_workspace_name" {}
+
+variable "domain" {}
+
 variable "aws_access_key_id" {
   type = string
   default = ""

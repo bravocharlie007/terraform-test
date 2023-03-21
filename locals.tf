@@ -13,7 +13,7 @@ locals {
   project_component      = "network-infrastructure"
   upper_env              = upper(var.environment)
   alb_name               = replace(local.localized_project_name, local.replace_string, local.alb_type)
-  zone_name              = "${var.environment}.${local.project_name}.com"
+  zone_name              = var.domain
   base_vpc_ip            = "10.0.0.0"
   base_private_subnet_ip = "10.0.1.0"
   vpc_mask               = 16

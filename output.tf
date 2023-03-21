@@ -37,3 +37,6 @@ output "vpc-cloudwatch-log-group" {
   value = aws_cloudwatch_log_group.ec2deployer_log_group.name
 }
 
+output "outpost_id" {
+  value = aws_alb.ec2_deployer_alb.subnet_mapping.*.outpost_id
+}

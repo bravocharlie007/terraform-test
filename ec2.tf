@@ -1,82 +1,49 @@
-###########################################################################################
-#
-## Creating 3 EC2 Instances:
-#
-###########################################################################################
-#
-#resource "aws_instance" "instance" {
-#  count                = length(aws_subnet.public_subnet.*.id)
-#  ami                  = local.instance_type
-#  instance_type        = local.ami_id
-#  subnet_id            = element(aws_subnet.public_subnet.*.id, count.index)
-#  security_groups      = [aws_security_group.sg.id, ]
-#  key_name             = "Keypair-01"
-#
-#  tags = {
-#    "Name"        = "Instance-${count.index}"
-#    "Environment" = "Test"
-#    "CreatedBy"   = "Terraform"
-#  }
-#
-#  timeouts {
-#    create = "10m"
-#  }
-#
-#}
-#
-#resource "null_resource" "null" {
-#  count = length(aws_subnet.public_subnet.*.id)
-#
-#  provisioner "file" {
-#    source      = "./userdata.sh"
-#    destination = "/home/ec2-user/userdata.sh"
-#  }
-#
-#  provisioner "remote-exec" {
-#    inline = [
-#      "chmod +x /home/ec2-user/userdata.sh",
-#      "sh /home/ec2-user/userdata.sh",
-#    ]
-#    on_failure = continue
-#  }
-#
-#  connection {
-#    type        = "ssh"
-#    user        = "ec2-user"
-#    port        = "22"
-#    host        = element(aws_eip.eip.*.public_ip, count.index)
-#    private_key = file(var.ssh_private_key)
-#  }
-#
-#}
-#
-#
-#
-#############################################################################################
-#
-## Creating 3 Elastic IPs:
-#
-#############################################################################################
-#
-#resource "aws_eip" "eip" {
-#  count            = length(aws_instance.instance.*.id)
-#  instance         = element(aws_instance.instance.*.id, count.index)
-#  public_ipv4_pool = "amazon"
-#  vpc              = true
-#
-#  tags = {
-#    "Name" = "EIP-${count.index}"
-#  }
-#}
-#
-#############################################################################################
-#
-## Creating EIP association with EC2 Instances:
-#
-#############################################################################################
-#
-#resource "aws_eip_association" "eip_association" {
-#  count         = length(aws_eip.eip)
-#  instance_id   = element(aws_instance.instance.*.id, count.index)
-#  allocation_id = element(aws_eip.eip.*.id, count.index)
-#}
+resource "aws_instance" "my_tf_ec2" {
+  ami = local.ami_id
+  instance_type = local.instance_type
+  subnet_id = aws_subnet.public_subnet.id
+  user_data = file("${path.module}/user_data/userdata.ssh")
+  security_groups = [aws_security_group.my_tf_ec2_sg.id, aws_security_group.sg.id,]
+  #  tags = local.common_tags
+}
+
+resource "aws_security_group" "my_tf_ec2_sg" {
+  name = "allow_http_from_alb_sg_to_ec2"
+  description = "Allow HTTP from ALB SG"
+  vpc_id = aws_vpc.ec2_deployer_vpc.id
+  ingress {
+    description = "Allow HTTP from ALB security group to instance"
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    #    cidr_blocks = [aws_security_group.ec2_deployer_alb_sg.id]
+    security_groups = [aws_security_group.ec2_deployer_alb_sg.id]
+
+  }
+  egress {
+    description = "Allow HTTP from instance to ALB SG"
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    #    cidr_blocks = [aws_security_group.ec2_deployer_alb_sg.id]
+    security_groups = [aws_security_group.ec2_deployer_alb_sg.id]
+  }
+  ingress {
+    description = "Allow HTTPS from ALB security group to instance"
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    #    cidr_blocks = [aws_security_group.ec2_deployer_alb_sg.id]
+    security_groups = [aws_security_group.ec2_deployer_alb_sg.id]
+
+  }
+  egress {
+    description = "Allow HTTPS from instance to ALB SG"
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    #    cidr_blocks = [aws_security_group.ec2_deployer_alb_sg.id]
+    security_groups = [aws_security_group.ec2_deployer_alb_sg.id]
+  }
+  tags = local.common_tags
+}
