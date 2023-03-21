@@ -25,13 +25,13 @@ output "main_zone_id" {
 
 }
 
-output "dev_zone_id" {
-  value = aws_route53_zone.dev_zone.zone_id
-}
+#output "dev_zone_id" {
+#  value = aws_route53_zone.dev_zone.zone_id
+#}
 
-output "dev_zone_ns" {
-  value = aws_route53_zone.dev_zone.name_servers
-}
+#output "dev_zone_ns" {
+#  value = aws_route53_zone.dev_zone.name_servers
+#}
 
 output "vpc-cloudwatch-log-group" {
   value = aws_cloudwatch_log_group.ec2deployer_log_group.name
