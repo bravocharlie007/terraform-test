@@ -1,4 +1,36 @@
-# Configuration Issues & Fixes Needed
+# Configuration Issues & Gaming Infrastructure Concerns
+
+## Gaming-Specific Configuration Issues
+
+### 1. Instance Type Inadequate for Gaming
+**Current**: `t3.micro` instance  
+**Issue**: Insufficient resources for gaming workloads
+```hcl
+# Current inadequate configuration
+instance_type = "t3.micro"  # 2 vCPU, 1 GB RAM
+```
+**Gaming Requirements**:
+- GPU instances: `g4dn.xlarge`, `g4dn.2xlarge`, `g5.xlarge`
+- High-CPU instances: `c5.2xlarge`, `c5.4xlarge`
+- High-memory instances: `r5.2xlarge` for memory-intensive games
+
+### 2. Operating System Mismatch
+**Current**: Amazon Linux AMI  
+**Issue**: Most gaming requires Windows
+```hcl
+# Need Windows AMI for gaming
+ami_id = "ami-0abcdef1234567890"  # Windows Server 2022
+```
+
+### 3. Missing Gaming Ports Configuration
+**Current**: Only HTTP/HTTPS configured  
+**Issue**: Games require specific port ranges
+```hcl
+# Examples of gaming ports needed:
+# Steam: 27015-27030 TCP, 27015-27030 UDP
+# Discord: 50000-65535 UDP
+# Game-specific ports vary
+```
 
 ## Current Terraform Validation Errors
 

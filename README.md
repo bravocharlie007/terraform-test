@@ -1,18 +1,50 @@
-# EC2 Deployer Infrastructure
+# EC2 Gaming PC Infrastructure
 
 ## Overview
-This Terraform configuration creates a complete AWS infrastructure for deploying a web application on EC2 instances with high availability through an Application Load Balancer (ALB). The infrastructure supports multiple environments (dev/prod) and includes comprehensive logging and monitoring capabilities.
+This Terraform configuration creates AWS infrastructure for hosting a cloud-based gaming PC that can be accessed by multiple users. The setup includes an EC2 instance behind an Application Load Balancer (ALB) with DNS management and comprehensive logging. The infrastructure supports multiple environments (dev/prod) and is designed to work with other Terraform workspaces for complete deployment.
 
+> **Note**: This appears to be part of a multi-workspace Terraform deployment. This workspace handles networking and compute resources, while other workspaces may handle VPC creation and additional load balancer configurations.
+
+## Gaming PC Use Case Considerations
+
+### Current Setup Challenges
+This infrastructure is designed for hosting a gaming PC accessible by multiple family members with unknown/changing IP addresses. The current configuration has several considerations:
+
+**Network Access Pattern:**  
+- Gaming typically requires multiple ports (game-specific, voice chat, etc.)
+- Users may connect from various locations with dynamic IPs
+- Requires both low-latency access and security
+
+**Multi-User Access:**
+- Multiple family members need simultaneous or scheduled access
+- User management without complex IP whitelisting
+- Balance between accessibility and security
 ## Architecture
 
 ### High-Level Architecture
 ```
-Internet → Application Load Balancer → EC2 Instance (Web Server)
+Internet → Application Load Balancer → EC2 Gaming Instance
            ↓
-    Route53 DNS Records ← VPC with Public Subnets
+    Route53 DNS Records ← VPC with Public Subnets  
            ↓
     CloudWatch Logging ← VPC Flow Logs
 ```
+
+### Multi-Workspace Architecture
+This workspace appears to be part of a larger multi-workspace deployment:
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   VPC Workspace │───▶│ Current Workspace │───▶│ Compute Workspace│
+│   (Base Network)│    │  (This Repository)│    │ (ALB/NLB Config) │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                              ↓
+                       ┌──────────────────┐
+                       │   Zone Workspace │
+                       │  (Route53 DNS)   │
+                       └──────────────────┘
+```
+
+**Note**: Without access to other workspaces, the exact deployment order cannot be determined. Please refer to your organization's documentation or provide access to other repositories.
 
 ### Components
 
@@ -26,10 +58,10 @@ Internet → Application Load Balancer → EC2 Instance (Web Server)
 - **VPC Flow Logs**: Comprehensive network traffic logging to CloudWatch
 
 #### Compute (ec2.tf)
-- **EC2 Instance**: Single `t3.micro` instance running Amazon Linux
-- **Auto-configuration**: Apache web server installation via user data
-- **Security Groups**: Controlled access for HTTP/HTTPS traffic from ALB
-- **AMI**: `ami-0557a15b87f6559cf` (Amazon Linux)
+- **EC2 Instance**: Single `t3.micro` instance (may need larger instance type for gaming)
+- **Auto-configuration**: Apache web server installation via user data (needs gaming software setup)
+- **Security Groups**: Currently configured for HTTP/HTTPS from ALB (needs gaming ports)
+- **AMI**: `ami-0557a15b87f6559cf` (Amazon Linux - may need Windows for gaming)
 
 #### Load Balancing (alb.tf)
 - **Application Load Balancer**: Public-facing ALB across multiple AZs
@@ -77,7 +109,42 @@ Resources follow the pattern: `{project_name}-{component}-{environment}`
 
 ## Workspace Dependencies
 
-### External Dependencies
+### Expected Workspace Architecture  
+Based on the configuration, this appears to be part of a multi-workspace deployment:
+
+1. **VPC Workspace** (Referenced but not accessible)
+   - Creates base VPC infrastructure
+   - Provides networking foundation
+
+2. **Zone Workspace** (Referenced in `data.tf`)
+   - Manages Route53 hosted zones
+   - Expected output: `zone_id`
+   - Referenced via: `data.terraform_remote_state.zone`
+
+3. **Current Workspace** (`terraform-test`)
+   - Gaming PC EC2 instance
+   - Application Load Balancer
+   - Security groups and routing
+   - CloudWatch logging
+
+4. **Compute Workspace** (Mentioned but not accessible)
+   - Additional ALB/NLB configurations
+   - Extended compute resources
+
+### Deployment Dependencies
+**⚠️ Deployment Order Unknown**: Without access to other workspaces, the exact deployment sequence cannot be determined. Generally recommended order would be:
+
+```
+1. VPC Workspace (if separate)
+     ↓
+2. Zone Workspace (Route53)
+     ↓  
+3. Current Workspace (this repo)
+     ↓
+4. Compute Workspace (additional resources)
+```
+
+### Current Workspace Dependencies
 1. **Zone Workspace**: Contains Route53 hosted zone configuration
    - Expected output: `zone_id`
    - Referenced in: `data.terraform_remote_state.zone`
