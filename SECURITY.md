@@ -50,7 +50,21 @@ def register_user_ip(user_id, current_ip):
     # Automated cleanup removes expired IPs
 ```
 
-## 🚨 Critical Security Concerns
+## 🚨 Critical Discovery: Workspace Architecture Issues
+
+### ⚠️ Infrastructure Redundancy Problem
+After analyzing all workspaces, **this `terraform-test` repository creates conflicting infrastructure** with the production `compute` workspace:
+
+**Conflicts:**
+- Both create VPC infrastructure (VPC workspace already handles this)
+- Both deploy ALB + EC2 instances (compute workspace is primary)
+- terraform-test has configuration errors and missing dependencies
+- Deploying both would create resource conflicts and security gaps
+
+**Recommendation:** 
+- **Use `compute` workspace** for gaming infrastructure (production-ready)
+- **Archive `terraform-test` workspace** (redundant/legacy)
+- Apply security improvements to `compute` workspace only
 
 ### Immediate Action Required
 
