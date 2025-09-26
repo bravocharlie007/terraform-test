@@ -1,5 +1,36 @@
+# IDE and Editor files
 /.idea/
 *.iml
+.vscode/
+*.swp
+*.swo
+
+# Terraform files
 /.terraform/
-terraform.*
-*.lock.hcl
+/.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars
+terraform.tfvars.json
+*.tfplan
+*.tfstate
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
